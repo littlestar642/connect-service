@@ -6,7 +6,7 @@ import (
 )
 
 type multiLogger struct {
-	fileLogger *log.Logger
+	fileLogger   *log.Logger
 	stdOutLogger *log.Logger
 }
 
@@ -19,10 +19,10 @@ func Init() error {
 	}
 
 	loggerInstance = &multiLogger{
-		fileLogger: log.New(logFile, "", log.Ltime),
+		fileLogger:   log.New(logFile, "", log.Ltime),
 		stdOutLogger: log.New(os.Stdout, "counter-service: ", log.LstdFlags),
 	}
-	
+
 	return nil
 }
 
@@ -33,4 +33,3 @@ func StdOut() *log.Logger {
 func PrintToFile(v ...interface{}) {
 	loggerInstance.fileLogger.Println(v...)
 }
-
