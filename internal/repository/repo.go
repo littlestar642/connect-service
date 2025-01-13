@@ -6,7 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Repo struct{
+type Repo struct {
 	RedisClient *redis.Client
 }
 

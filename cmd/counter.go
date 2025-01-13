@@ -4,6 +4,7 @@ import (
 	"counter-service/internal/config"
 	"counter-service/internal/handler"
 	"counter-service/internal/repository"
+	"counter-service/internal/service"
 	"counter-service/internal/tasks"
 	"counter-service/pkg/redis"
 	"log"
@@ -11,16 +12,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main(){
+func main() {
 	cnf := config.New()
 
 	redisClient := redis.Init(cnf.RedisAddr)
 
 	repo := repository.New(redisClient)
 
-	handler := handler.New(repo)
+	svc := service.New(repo)
 
-	r:= gin.Default()
+	handler := handler.New(svc)
+
+	r := gin.Default()
 	r.GET("/api/verve/accept", handler.Accept)
 
 	go tasks.LogRequestsEveryMinute()

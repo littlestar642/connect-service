@@ -17,6 +17,6 @@ func Init(addr string) *redis.Client {
 		log.Fatalf("Failed to connect to Redis %s", err)
 	}
 	log.Println("Connected to Redis")
-	
+
 	return redisClient
 }

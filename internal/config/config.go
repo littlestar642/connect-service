@@ -2,8 +2,8 @@ package config
 
 import "github.com/spf13/viper"
 
-type Config struct{
-	Port string
+type Config struct {
+	Port      string
 	RedisAddr string
 	KafkaAddr string
 }
@@ -18,14 +18,14 @@ func Load() {
 	viper.AutomaticEnv()
 
 	appConfig = &Config{
-		Port: viper.GetString("PORT"),
+		Port:      viper.GetString("PORT"),
 		RedisAddr: viper.GetString("REDIS_ADDR"),
 		KafkaAddr: viper.GetString("KAFKA_ADDR"),
 	}
 }
 
 func New() *Config {
-	if(appConfig == nil){
+	if appConfig == nil {
 		Load()
 	}
 	return appConfig

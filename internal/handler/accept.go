@@ -1,52 +1,21 @@
 package handler
 
 import (
-	"counter-service/internal/api"
-	"counter-service/internal/repository"
-	"net/http"
-	"strconv"
+	"counter-service/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	repo *repository.Repo
+	svc *service.CounterService
 }
 
-func New(repo *repository.Repo) *Handler {
+func New(serv *service.CounterService) *Handler {
 	return &Handler{
-		repo: repo,
+		svc: serv,
 	}
 }
 
 func (h *Handler) Accept(c *gin.Context) {
-	idStr := c.Query("id")
-	if idStr == "" {
-		c.String(http.StatusBadRequest, "failed")
-		return
-	}
-
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		c.String(http.StatusBadRequest, "failed")
-		return
-	}
-
-	if id < 0 {
-		c.String(http.StatusBadRequest, "failed")
-		return
-	}
-
-	if !h.repo.IsUniqueId(c, id){
-		c.String(http.StatusConflict, "failed")
-		return
-	}
-
-	endpoint := c.Query("endpoint")
-	if endpoint!=""{
-		count := h.repo.GetCount(c)
-		go api.SendPostRequest(endpoint, count)
-	}
-
-	c.String(http.StatusOK, "success")
+	h.svc.Accept(c)
 }
