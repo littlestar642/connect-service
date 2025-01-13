@@ -16,11 +16,11 @@ func New(redisClient *redis.Client) *Repo {
 	}
 }
 
-func (r *Repo) IsUniqueId(ctx context.Context, id int) bool {
+func (r *Repo) IsUniqueRequestId(ctx context.Context, id int) bool {
 	return r.RedisClient.SetNX(ctx, "id", id, 0).Val()
 }
 
-func (r *Repo) GetCount(ctx context.Context) int {
+func (r *Repo) GetRequestCount(ctx context.Context) int {
 	val, err := r.RedisClient.Get(ctx, "count").Int()
 	if err != nil {
 		return 0

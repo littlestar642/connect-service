@@ -25,16 +25,16 @@ func (s *CounterService) Accept(c *gin.Context) {
 		return
 	}
 
-	if !s.repo.IsUniqueId(c, id) {
+	if !s.repo.IsUniqueRequestId(c, id) {
 		c.String(http.StatusConflict, "failed")
 		return
 	}
 
 	endpoint := c.Query("endpoint")
 	if endpoint != "" {
-		count := s.repo.GetCount(c)
+		count := s.repo.GetRequestCount(c)
 		go api.SendPostRequest(endpoint, count)
 	}
 
-	c.String(http.StatusOK, "success")
+	c.String(http.StatusOK, "ok")
 }

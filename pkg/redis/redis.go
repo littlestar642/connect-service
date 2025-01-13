@@ -7,16 +7,16 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func Init(addr string) *redis.Client {
+func Init(addr string) (*redis.Client, error) {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: addr,
 	})
 
 	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis %s", err)
+		return nil, err
 	}
 	log.Println("Connected to Redis")
 
-	return redisClient
+	return redisClient, nil
 }
