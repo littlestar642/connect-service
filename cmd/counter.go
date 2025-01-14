@@ -8,6 +8,7 @@ import (
 	"counter-service/internal/repository"
 	"counter-service/internal/service"
 	"counter-service/internal/worker"
+	"counter-service/pkg/kafka"
 	"counter-service/pkg/logger"
 	"counter-service/pkg/redis"
 	"log"
@@ -31,6 +32,8 @@ func main() {
 	if err != nil {
 		log.Fatalln("failed to connect to Redis: ", err.Error())
 	}
+
+	kafka.Init(cnf.KafkaAddr)
 
 	repo := repository.New(redisClient)
 
