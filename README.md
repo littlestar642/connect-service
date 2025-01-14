@@ -8,6 +8,7 @@ The service used to count number of requests, every minute.
 - Go - ^1.23.2
 - Docker - ^27.2.0
 - Docker Compose - ^2.29.2
+- Make
 
 If not using docker
 
