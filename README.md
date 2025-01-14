@@ -51,11 +51,23 @@ Local
 
 ## APIs
 
-GET - Accept request id (optionally endpoint) and increment count
+GET - Accept request id (and optionally endpoint) to increment count
 
 ```shell script
 curl http://localhost:8080/api/verve/accept?id=0
 ```
+
+```shell script
+curl http://localhost:8080/api/verve/accept?id=43&endpoint=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fverve%2Faccept
+```
+
+Response 
+
+- "ok"     - denotes success
+- "failed" - denotes failure
+
+
+For testing purpose:
 
 POST - Accept request count
 ```shell script
