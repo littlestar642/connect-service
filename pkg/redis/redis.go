@@ -16,7 +16,7 @@ func Init(addr string) (*redis.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Connected to Redis")
+	log.Println("connected to Redis")
 
 	return redisClient, nil
 }

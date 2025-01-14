@@ -6,20 +6,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	svc *service.CounterService
+type HandlerI interface{
+	Accept(c *gin.Context)
+	AcceptCount(c *gin.Context)
+}
+type handler struct {
+	svc service.CounterI
 }
 
-func New(serv *service.CounterService) *Handler {
-	return &Handler{
+func New(serv service.CounterI) HandlerI {
+	return &handler{
 		svc: serv,
 	}
 }
 
-func (h *Handler) Accept(c *gin.Context) {
+func (h *handler) Accept(c *gin.Context) {
 	h.svc.Accept(c)
 }
 
-func (h *Handler) AcceptCount(c *gin.Context) {
+func (h *handler) AcceptCount(c *gin.Context) {
 	h.svc.AcceptCount(c)
 }

@@ -11,19 +11,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CounterService struct {
-	repo      *repository.Repo
-	apiClient *api.API
+type CounterI interface {
+	Accept(c *gin.Context)
+	AcceptCount(c *gin.Context)
 }
 
-func New(repo *repository.Repo, apiClient *api.API) *CounterService {
-	return &CounterService{
+type counterService struct {
+	repo      repository.RepoI
+	apiClient api.Requester
+}
+
+func New(repo repository.RepoI, apiClient api.Requester) CounterI {
+	return &counterService{
 		repo:      repo,
 		apiClient: apiClient,
 	}
 }
 
-func (s *CounterService) Accept(c *gin.Context) {
+func (s *counterService) Accept(c *gin.Context) {
 	id, err := IsValidId(c)
 	if err != nil {
 		log.Printf("failed to validate id: %v\n", err)
@@ -60,6 +65,6 @@ func (s *CounterService) Accept(c *gin.Context) {
 	c.String(http.StatusOK, "ok")
 }
 
-func (s *CounterService) AcceptCount(c *gin.Context) {
+func (s *counterService) AcceptCount(c *gin.Context) {
 	log.Println("recieved request for accept count")
 }

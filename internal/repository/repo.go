@@ -9,12 +9,19 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type Repo struct {
+type RepoI interface{
+	IsUniqueRequestId(ctx context.Context, id int) bool
+	IncrementRequestCount(ctx context.Context, id int) error
+	GetLastMinuteRequestCount(ctx context.Context) int
+	GetCurrentMinuteRequestCount(ctx context.Context) int
+}
+
+type repo struct {
 	RedisClient *redis.Client
 }
 
-func New(redisClient *redis.Client) *Repo {
-	return &Repo{
+func New(redisClient *redis.Client) RepoI {
+	return &repo{
 		RedisClient: redisClient,
 	}
 }
@@ -25,13 +32,13 @@ const (
 	REQUEST_SET_KEY = "request_set:%s"
 )
 
-func (r *Repo) IsUniqueRequestId(ctx context.Context, id int) bool {
+func (r *repo) IsUniqueRequestId(ctx context.Context, id int) bool {
 	timestamp := time.Now().Format(TIME_FORMAT)
 	key := fmt.Sprintf(REQUEST_SET_KEY, timestamp)
 	return !r.RedisClient.SIsMember(ctx, key, id).Val()
 }
 
-func (r *Repo) IncrementRequestCount(ctx context.Context, id int) error {
+func (r *repo) IncrementRequestCount(ctx context.Context, id int) error {
 	timestamp := time.Now().Format(TIME_FORMAT)
 	countTsKey := fmt.Sprintf(COUNT_KEY, timestamp)
 	setKey := fmt.Sprintf(REQUEST_SET_KEY, timestamp)
@@ -50,7 +57,7 @@ func (r *Repo) IncrementRequestCount(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *Repo) GetLastMinuteRequestCount(ctx context.Context) int {
+func (r *repo) GetLastMinuteRequestCount(ctx context.Context) int {
 	currentTime := time.Now()
 	prevMinute := currentTime.Add(-time.Minute)
 	fomattedTime := prevMinute.Format(TIME_FORMAT)
@@ -66,7 +73,7 @@ func (r *Repo) GetLastMinuteRequestCount(ctx context.Context) int {
 	return val
 }
 
-func (r *Repo) GetCurrentMinuteRequestCount(ctx context.Context) int {
+func (r *repo) GetCurrentMinuteRequestCount(ctx context.Context) int {
 	fomattedTime := time.Now().Format(TIME_FORMAT)
 	countTsKey := fmt.Sprintf(COUNT_KEY, fomattedTime)
 	val, err := r.RedisClient.Get(ctx, countTsKey).Int()

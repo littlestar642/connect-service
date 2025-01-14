@@ -30,7 +30,7 @@ func main() {
 
 	redisClient, err := redis.Init(cnf.RedisAddr)
 	if err != nil {
-		log.Fatalln("failed to connect to Redis: ", err.Error())
+		log.Fatalln("failed to connect to redis: ", err.Error())
 	}
 
 	kafka.Init(cnf.KafkaAddr)
@@ -52,10 +52,11 @@ func main() {
 	initTicker(wkr, taskTicker, done)
 
 	r.Run(":" + cnf.Port)
+	log.Println("server started")
 	handleGracefulShutDown(&http.Server{Addr: ":" + cnf.Port, Handler: r}, 5*time.Second, taskTicker, done)
 }
 
-func setupRouter(handler *handler.Handler) *gin.Engine {
+func setupRouter(handler handler.HandlerI) *gin.Engine {
 	r := gin.Default()
 	r.GET("/api/verve/accept", handler.Accept)
 
@@ -64,7 +65,7 @@ func setupRouter(handler *handler.Handler) *gin.Engine {
 	return r
 }
 
-func initTicker(wkr *worker.Worker, taskTicker *time.Ticker, done chan bool) {
+func initTicker(wkr worker.WorkerI, taskTicker *time.Ticker, done chan bool) {
 	go func() {
 		for {
 			select {

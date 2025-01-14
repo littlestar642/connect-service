@@ -8,21 +8,25 @@ import (
 	"time"
 )
 
-type API struct {
+type Requester interface{
+	SendPostRequest(endpoint string, count int)
+}
+
+type api struct {
 	client *http.Client
 }
 
-func New() *API {
+func New() Requester {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
 
-	return &API{
+	return &api{
 		client: client,
 	}
 }
 
-func (a *API) SendPostRequest(endpoint string, count int) {
+func (a *api) SendPostRequest(endpoint string, count int) {
 	url := url.Values{}
 	url.Add("count", fmt.Sprint(count))
 	endpoint += "?" + url.Encode()

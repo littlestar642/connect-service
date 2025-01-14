@@ -21,11 +21,11 @@ func Init(addr string) {
 	var err error
 	producer, err = retryConnectionWithFixedDelay(saramaConfig, addr, 5, 2*time.Second)
 	if err != nil {
-		log.Fatalf("Error creating Kafka producer: %s", err)
+		log.Fatalf("error creating kafka producer: %s", err)
 		return
 	}
 
-	log.Printf("Connected to Kafka on %s", addr)
+	log.Printf("connected to Kafka on %s", addr)
 }
 
 func Send(topic string, values ...string) {

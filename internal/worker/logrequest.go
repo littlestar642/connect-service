@@ -8,11 +8,15 @@ import (
 	"log"
 )
 
-type Worker struct {
-	Repo *repository.Repo
+type WorkerI interface {
+	LogRequestsEveryMinute()
 }
 
-func New(repo *repository.Repo) *Worker {
+type Worker struct {
+	Repo repository.RepoI
+}
+
+func New(repo repository.RepoI) WorkerI {
 	return &Worker{
 		Repo: repo,
 	}
