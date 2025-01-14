@@ -10,12 +10,14 @@ import (
 )
 
 type CounterService struct {
-	repo *repository.Repo
+	repo      *repository.Repo
+	apiClient *api.API
 }
 
-func New(repo *repository.Repo) *CounterService {
+func New(repo *repository.Repo, apiClient *api.API) *CounterService {
 	return &CounterService{
-		repo: repo,
+		repo:      repo,
+		apiClient: apiClient,
 	}
 }
 
@@ -43,7 +45,7 @@ func (s *CounterService) Accept(c *gin.Context) {
 	endpoint := c.Query("endpoint")
 	if endpoint != "" {
 		count := s.repo.GetRequestCount(c)
-		go api.SendPostRequest(endpoint, count)
+		go s.apiClient.SendPostRequest(endpoint, count)
 	}
 
 	c.String(http.StatusOK, "ok")

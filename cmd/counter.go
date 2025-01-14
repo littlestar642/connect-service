@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"counter-service/internal/api"
 	"counter-service/internal/config"
 	"counter-service/internal/handler"
 	"counter-service/internal/repository"
@@ -35,7 +36,9 @@ func main() {
 
 	wkr := worker.New(repo)
 
-	svc := service.New(repo)
+	apiClient := api.New()
+
+	svc := service.New(repo, apiClient)
 
 	handler := handler.New(svc)
 
