@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HandlerI interface{
+type HandlerI interface {
 	Accept(c *gin.Context)
 	AcceptCount(c *gin.Context)
 }

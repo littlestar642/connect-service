@@ -25,7 +25,7 @@ cd counter-service
 
 Docker
 ```shell script
-make build
+make docker-build
 ```
 
 Local

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Requester interface{
+type Requester interface {
 	SendPostRequest(endpoint string, count int)
 }
 

@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type RepoI interface{
+type RepoI interface {
 	IsUniqueRequestId(ctx context.Context, id int) bool
 	IncrementRequestCount(ctx context.Context, id int) error
 	GetLastMinuteRequestCount(ctx context.Context) int

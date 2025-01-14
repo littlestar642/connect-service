@@ -1,4 +1,4 @@
-build:
+docker-build:
 	go fmt ./...
 	docker build -t counter-service-app:latest .
 
