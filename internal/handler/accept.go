@@ -19,3 +19,7 @@ func New(serv *service.CounterService) *Handler {
 func (h *Handler) Accept(c *gin.Context) {
 	h.svc.Accept(c)
 }
+
+func (h *Handler) AcceptCount(c *gin.Context) {
+	h.svc.AcceptCount(c)
+}

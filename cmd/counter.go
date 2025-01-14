@@ -22,14 +22,14 @@ import (
 func main() {
 	err := logger.Init()
 	if err != nil {
-		log.Fatalln("Failed to open log file")
+		log.Fatalln("failed to open log file")
 	}
 
 	cnf := config.New()
 
 	redisClient, err := redis.Init(cnf.RedisAddr)
 	if err != nil {
-		log.Fatalln("Failed to connect to Redis: ", err.Error())
+		log.Fatalln("failed to connect to Redis: ", err.Error())
 	}
 
 	repo := repository.New(redisClient)
@@ -42,31 +42,41 @@ func main() {
 
 	handler := handler.New(svc)
 
+	r := setupRouter(handler)
+
+	taskTicker := time.NewTicker(time.Minute)
+	done := make(chan bool)
+	initTicker(wkr, taskTicker, done)
+
+	r.Run(":" + cnf.Port)
+	handleGracefulShutDown(&http.Server{Addr: ":" + cnf.Port, Handler: r}, 5*time.Second, taskTicker, done)
+}
+
+func setupRouter(handler *handler.Handler) *gin.Engine {
 	r := gin.Default()
 	r.GET("/api/verve/accept", handler.Accept)
 
-	done := make(chan bool)
-	initTicker(wkr, done)
-
-	r.Run(":" + cnf.Port)
-	handleGracefulShutDown(&http.Server{Addr: ":" + cnf.Port, Handler: r}, 5*time.Second, done)
+	// adding post api for testing
+	r.POST("/api/verve/accept", handler.AcceptCount)
+	return r
 }
 
-func initTicker(wkr *worker.Worker, done chan bool) {
-	taskTicker := time.NewTicker(time.Minute)
+func initTicker(wkr *worker.Worker, taskTicker *time.Ticker, done chan bool) {
 	go func() {
-		select {
-		case <-done:
-			log.Println("done from ticker")
-			return
-		case <-taskTicker.C:
-			// handle error
-			wkr.LogRequestsEveryMinute()
+		for {
+			select {
+			case <-done:
+				log.Println("done from ticker")
+				return
+			case <-taskTicker.C:
+				// handle error
+				wkr.LogRequestsEveryMinute()
+			}
 		}
 	}()
 }
 
-func handleGracefulShutDown(server *http.Server, timeout time.Duration, done chan bool) {
+func handleGracefulShutDown(server *http.Server, timeout time.Duration, taskTicker *time.Ticker, done chan bool) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
@@ -74,6 +84,7 @@ func handleGracefulShutDown(server *http.Server, timeout time.Duration, done cha
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	done <- true
+	taskTicker.Stop()
 	_ = server.Shutdown(ctx)
 	log.Println("shutting down")
 	os.Exit(0)

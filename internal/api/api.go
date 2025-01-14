@@ -16,7 +16,7 @@ func New() *API {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	
+
 	return &API{
 		client: client,
 	}
