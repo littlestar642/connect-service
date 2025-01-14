@@ -27,4 +27,4 @@
 
 - For the sake of simplicity, we have not added any authentication or authorization layer. This can be added in the future.
 - Not using a DB, since from the problem statement writing to log file/pushing onto queue seems to be the objective of the service.
-- Using a standalone redis for this example. This can be upgraded to cluster redis with scale. 
+- Using a standalone redis for this example since 10k rps can be served using a redis with high memory. If required, this can be upgraded to cluster redis at scale. 
