@@ -3,7 +3,7 @@ docker-build:
 	docker build -t counter-service-app:latest .
 
 compose-run:
-	$(MAKE) build
+	$(MAKE) docker-build
 	docker-compose up
 
 run:
