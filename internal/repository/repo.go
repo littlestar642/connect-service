@@ -70,7 +70,7 @@ func (r *repo) GetLastMinuteRequestCount(ctx context.Context) (int, error) {
 		log.Println("GetLastMinuteRequestCount: failed to get last minute request count: ", err)
 		return 0, err
 	}
-	
+
 	return val, nil
 }
 
