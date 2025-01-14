@@ -5,7 +5,7 @@ The service used to count number of requests, every minute.
 
 ## Prerequisites
 
-- Golang - ^1.23.2
+- Go - ^1.23.2
 - Docker - ^27.2.0
 - Docker Compose - ^2.29.2
 
@@ -22,6 +22,11 @@ git clone git@github.com:littlestar642/counter-service.git
 cd counter-service
 ```
 
+Docker
+```shell script
+make build
+```
+
 Local
 ```shell script
 mkdir build
@@ -29,12 +34,12 @@ mkdir build
 go build -o build/counter-service  cmd/counter.go
 ```
 
+## Run Insructions
+
 Docker
 ```shell script
-make build
+make compose-run
 ```
-
-## Run Insructions
 
 Local
 
@@ -42,11 +47,6 @@ Local
 
 ```shell script
 ./build/counter-service 
-```
-
-Docker
-```shell script
-make compose-run
 ```
 
 ## APIs
