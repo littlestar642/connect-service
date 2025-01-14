@@ -23,7 +23,7 @@ import (
 func main() {
 	err := logger.Init()
 	if err != nil {
-		log.Fatalln("failed to open log file")
+		log.Fatalln("failed to open log file", err.Error())
 	}
 
 	cnf := config.New()

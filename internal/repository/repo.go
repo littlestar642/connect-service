@@ -12,8 +12,8 @@ import (
 type RepoI interface {
 	IsUniqueRequestId(ctx context.Context, id int) bool
 	IncrementRequestCount(ctx context.Context, id int) error
-	GetLastMinuteRequestCount(ctx context.Context) int
-	GetCurrentMinuteRequestCount(ctx context.Context) int
+	GetLastMinuteRequestCount(ctx context.Context) (int, error)
+	GetCurrentMinuteRequestCount(ctx context.Context) (int, error)
 }
 
 type repo struct {
@@ -57,7 +57,7 @@ func (r *repo) IncrementRequestCount(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *repo) GetLastMinuteRequestCount(ctx context.Context) int {
+func (r *repo) GetLastMinuteRequestCount(ctx context.Context) (int, error) {
 	currentTime := time.Now()
 	prevMinute := currentTime.Add(-time.Minute)
 	fomattedTime := prevMinute.Format(TIME_FORMAT)
@@ -65,26 +65,28 @@ func (r *repo) GetLastMinuteRequestCount(ctx context.Context) int {
 	val, err := r.RedisClient.Get(ctx, countTsKey).Int()
 	if err != nil {
 		if err == redis.Nil {
-			return 0
+			return 0, nil
 		}
 		log.Println("GetLastMinuteRequestCount: failed to get last minute request count: ", err)
-		return 0
+		return 0, err
 	}
-	return val
+	
+	return val, nil
 }
 
-func (r *repo) GetCurrentMinuteRequestCount(ctx context.Context) int {
+func (r *repo) GetCurrentMinuteRequestCount(ctx context.Context) (int, error) {
 	fomattedTime := time.Now().Format(TIME_FORMAT)
 	countTsKey := fmt.Sprintf(COUNT_KEY, fomattedTime)
 	val, err := r.RedisClient.Get(ctx, countTsKey).Int()
 	if err != nil {
 		if err == redis.Nil {
-			return 0
+			return 0, nil
 		}
 		log.Println("GetCurrentMinuteRequestCount: failed to get current minute request count: ", err)
-		return 0
+		return 0, err
 	}
-	return val
+
+	return val, nil
 }
 
 func expireKeys(ctx context.Context, client *redis.Client, keys ...string) {

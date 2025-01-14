@@ -25,7 +25,11 @@ func New(repo repository.RepoI) WorkerI {
 func (w *Worker) LogRequestsEveryMinute() {
 	log.Println("Logging request count")
 
-	count := w.Repo.GetLastMinuteRequestCount(context.Background())
+	count, err := w.Repo.GetLastMinuteRequestCount(context.Background())
+	if err != nil {
+		log.Println("failed to get last minute request count: ", err)
+		return
+	}
 	kafka.Send("request-count", fmt.Sprintf("%d", count))
 	// logger.PrintToFile("Number of requests in the last minute: ", count)
 }

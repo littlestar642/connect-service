@@ -3,7 +3,6 @@ package service
 import (
 	"counter-service/internal/api"
 	"counter-service/internal/repository"
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -57,8 +56,13 @@ func (s *counterService) Accept(c *gin.Context) {
 			c.String(http.StatusBadRequest, "failed")
 			return
 		}
-		count := s.repo.GetLastMinuteRequestCount(c)
-		fmt.Println(count)
+		count, err := s.repo.GetCurrentMinuteRequestCount(c)
+		if err != nil {
+			log.Println("failed to get current minute request count:", err)
+			c.String(http.StatusInternalServerError, "failed")
+			return
+		}
+
 		go s.apiClient.SendPostRequest(decodedEndpoint, count)
 	}
 
