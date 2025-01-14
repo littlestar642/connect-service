@@ -3,13 +3,13 @@ module counter-service
 go 1.23.2
 
 require (
+	github.com/IBM/sarama v1.45.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/redis/go-redis/v9 v9.7.0
 	github.com/spf13/viper v1.19.0
 )
 
 require (
-	github.com/IBM/sarama v1.45.0 // indirect
 	github.com/bytedance/sonic v1.12.7 // indirect
 	github.com/bytedance/sonic/loader v0.2.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
