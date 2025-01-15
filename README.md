@@ -75,6 +75,4 @@ POST - Accept request count
 curl -X POST http://localhost:8080/api/verve/accept?count=0
 ```
 
-
-
-
+[Thought Process](./thought-process.md)

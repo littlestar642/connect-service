@@ -17,7 +17,7 @@
     - Using a Ticker to regularly fetch the count and push on to kafka.
     - Using go routines for handling redis interactions since traffic upto 10k rps is expected. Since redis is single threaded, even if we have multiple requests at the same time with same ID, the second one will get discarded. 
 
-    ![alt text](./images/image.png)
+    ![data flow diagram](./images/image.png)
 
     Sample request
     ```shell
