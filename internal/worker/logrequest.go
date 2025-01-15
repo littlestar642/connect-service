@@ -4,6 +4,7 @@ import (
 	"context"
 	"counter-service/internal/repository"
 	"counter-service/pkg/kafka"
+	"counter-service/pkg/logger"
 	"fmt"
 	"log"
 )
@@ -13,12 +14,14 @@ type WorkerI interface {
 }
 
 type Worker struct {
-	Repo repository.RepoI
+	Repo          repository.RepoI
+	KafkaProducer kafka.ProducerI
 }
 
-func New(repo repository.RepoI) WorkerI {
+func New(repo repository.RepoI, kafkaProducer kafka.ProducerI) WorkerI {
 	return &Worker{
-		Repo: repo,
+		Repo:          repo,
+		KafkaProducer: kafkaProducer,
 	}
 }
 
@@ -30,6 +33,7 @@ func (w *Worker) LogRequestsEveryMinute() {
 		log.Println("failed to get last minute request count: ", err)
 		return
 	}
-	kafka.Send("request-count", fmt.Sprintf("%d", count))
-	// logger.PrintToFile("Number of requests in the last minute: ", count)
+	w.KafkaProducer.Send("request-count", fmt.Sprintf("%d", count))
+
+	logger.PrintToFile("Number of requests in the last minute: ", count)
 }

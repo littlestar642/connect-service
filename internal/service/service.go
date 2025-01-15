@@ -41,12 +41,7 @@ func (s *counterService) Accept(c *gin.Context) {
 		return
 	}
 
-	err = s.repo.IncrementRequestCount(c, id)
-	if err != nil {
-		log.Printf("failed to increment request count: %v\n", err)
-		c.String(http.StatusInternalServerError, "failed")
-		return
-	}
+	go s.handleIdIncrement(c, id)
 
 	endpoint := c.Query("endpoint")
 	if endpoint != "" {
@@ -56,14 +51,8 @@ func (s *counterService) Accept(c *gin.Context) {
 			c.String(http.StatusBadRequest, "failed")
 			return
 		}
-		count, err := s.repo.GetCurrentMinuteRequestCount(c)
-		if err != nil {
-			log.Println("failed to get current minute request count:", err)
-			c.String(http.StatusInternalServerError, "failed")
-			return
-		}
 
-		go s.apiClient.SendPostRequest(decodedEndpoint, count)
+		go s.handleIdIncrementWithPostRequest(c, id, decodedEndpoint)
 	}
 
 	c.String(http.StatusOK, "ok")
@@ -71,4 +60,21 @@ func (s *counterService) Accept(c *gin.Context) {
 
 func (s *counterService) AcceptCount(c *gin.Context) {
 	log.Println("recieved request for accept count")
+}
+
+func (s *counterService) handleIdIncrement(c *gin.Context, id int) {
+	err := s.repo.IncrementRequestCount(c, id)
+	if err != nil {
+		log.Printf("failed to increment request count: %v\n", err)
+	}
+}
+
+func (s *counterService) handleIdIncrementWithPostRequest(c *gin.Context, id int, endpoint string) {
+	count, err := s.repo.GetCurrentMinuteRequestCount(c)
+	if err != nil {
+		log.Println("failed to get current minute request count:", err)
+		return
+	}
+
+	s.apiClient.SendPostRequest(endpoint, count)
 }

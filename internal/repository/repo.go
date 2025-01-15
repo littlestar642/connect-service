@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"counter-service/pkg/redis"
 )
 
 type RepoI interface {
@@ -17,10 +17,10 @@ type RepoI interface {
 }
 
 type repo struct {
-	RedisClient *redis.Client
+	RedisClient redis.ClientI
 }
 
-func New(redisClient *redis.Client) RepoI {
+func New(redisClient redis.ClientI) RepoI {
 	return &repo{
 		RedisClient: redisClient,
 	}
@@ -42,7 +42,7 @@ func (r *repo) IncrementRequestCount(ctx context.Context, id int) error {
 	timestamp := time.Now().Format(TIME_FORMAT)
 	countTsKey := fmt.Sprintf(COUNT_KEY, timestamp)
 	setKey := fmt.Sprintf(REQUEST_SET_KEY, timestamp)
-	defer expireKeys(ctx, r.RedisClient, countTsKey, setKey)
+	defer r.expireKeys(ctx, countTsKey, setKey)
 
 	err := r.RedisClient.Incr(ctx, countTsKey).Err()
 	if err != nil {
@@ -64,7 +64,7 @@ func (r *repo) GetLastMinuteRequestCount(ctx context.Context) (int, error) {
 	countTsKey := fmt.Sprintf(COUNT_KEY, fomattedTime)
 	val, err := r.RedisClient.Get(ctx, countTsKey).Int()
 	if err != nil {
-		if err == redis.Nil {
+		if r.RedisClient.IsNil(err) {
 			return 0, nil
 		}
 		log.Println("GetLastMinuteRequestCount: failed to get last minute request count: ", err)
@@ -79,7 +79,7 @@ func (r *repo) GetCurrentMinuteRequestCount(ctx context.Context) (int, error) {
 	countTsKey := fmt.Sprintf(COUNT_KEY, fomattedTime)
 	val, err := r.RedisClient.Get(ctx, countTsKey).Int()
 	if err != nil {
-		if err == redis.Nil {
+		if r.RedisClient.IsNil(err) {
 			return 0, nil
 		}
 		log.Println("GetCurrentMinuteRequestCount: failed to get current minute request count: ", err)
@@ -89,8 +89,8 @@ func (r *repo) GetCurrentMinuteRequestCount(ctx context.Context) (int, error) {
 	return val, nil
 }
 
-func expireKeys(ctx context.Context, client *redis.Client, keys ...string) {
+func (r *repo) expireKeys(ctx context.Context, keys ...string) {
 	for _, key := range keys {
-		client.Expire(ctx, key, time.Minute)
+		r.RedisClient.Expire(ctx, key, time.Minute)
 	}
 }

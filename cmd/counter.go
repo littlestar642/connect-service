@@ -33,11 +33,14 @@ func main() {
 		log.Fatalln("failed to connect to redis: ", err.Error())
 	}
 
-	kafka.Init(cnf.KafkaAddr)
+	kafkaClient, err := kafka.InitProducer(cnf.KafkaAddr)
+	if err != nil {
+		log.Fatalln("failed to connect to kafka: ", err.Error())
+	}
 
 	repo := repository.New(redisClient)
 
-	wkr := worker.New(repo)
+	wkr := worker.New(repo, kafkaClient)
 
 	apiClient := api.New()
 
@@ -51,9 +54,13 @@ func main() {
 	done := make(chan bool)
 	initTicker(wkr, taskTicker, done)
 
-	r.Run(":" + cnf.Port)
+	err = r.Run(":" + cnf.Port)
+	if err != nil {
+		log.Fatalln("failed to start server: ", err.Error())
+	}
+
 	log.Println("server started")
-	handleGracefulShutDown(&http.Server{Addr: ":" + cnf.Port, Handler: r}, 5*time.Second, taskTicker, done)
+	handleGracefulShutDown(&http.Server{Addr: ":" + cnf.Port, Handler: r}, 5*time.Second, taskTicker, done, kafkaClient, redisClient)
 }
 
 func setupRouter(handler handler.HandlerI) *gin.Engine {
@@ -73,14 +80,13 @@ func initTicker(wkr worker.WorkerI, taskTicker *time.Ticker, done chan bool) {
 				log.Println("done from ticker")
 				return
 			case <-taskTicker.C:
-				// handle error
 				wkr.LogRequestsEveryMinute()
 			}
 		}
 	}()
 }
 
-func handleGracefulShutDown(server *http.Server, timeout time.Duration, taskTicker *time.Ticker, done chan bool) {
+func handleGracefulShutDown(server *http.Server, timeout time.Duration, taskTicker *time.Ticker, done chan bool, kafkaClient kafka.ProducerI, redisClient redis.ClientI) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	<-c
@@ -89,6 +95,8 @@ func handleGracefulShutDown(server *http.Server, timeout time.Duration, taskTick
 	defer cancel()
 	done <- true
 	taskTicker.Stop()
+	kafkaClient.Close()
+	redisClient.Close()
 	_ = server.Shutdown(ctx)
 	log.Println("shutting down")
 	os.Exit(0)
