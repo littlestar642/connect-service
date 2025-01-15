@@ -4,7 +4,7 @@ import (
 	"context"
 	"counter-service/internal/repository"
 	"counter-service/pkg/kafka"
-	"counter-service/pkg/logger"
+	// "counter-service/pkg/logger"
 	"fmt"
 	"log"
 )
@@ -35,5 +35,5 @@ func (w *Worker) LogRequestsEveryMinute() {
 	}
 	w.KafkaProducer.Send("request-count", fmt.Sprintf("%d", count))
 
-	logger.PrintToFile("Number of requests in the last minute: ", count)
+	// logger.PrintToFile("Number of requests in the last minute: ", count)
 }
