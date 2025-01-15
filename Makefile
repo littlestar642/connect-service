@@ -6,6 +6,9 @@ compose-run:
 	$(MAKE) docker-build
 	docker-compose up
 
+build-binary:
+	go build -o build/counter-service cmd/counter.go
+
 run:
 	go run cmd/counter.go
 
