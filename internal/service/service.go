@@ -52,7 +52,7 @@ func (s *counterService) Accept(c *gin.Context) {
 			return
 		}
 
-		go s.handleIdIncrementWithPostRequest(c, id, decodedEndpoint)
+		go s.handlePostRequest(c, decodedEndpoint)
 	}
 
 	c.String(http.StatusOK, "ok")
@@ -69,7 +69,7 @@ func (s *counterService) handleIdIncrement(c *gin.Context, id int) {
 	}
 }
 
-func (s *counterService) handleIdIncrementWithPostRequest(c *gin.Context, id int, endpoint string) {
+func (s *counterService) handlePostRequest(c *gin.Context, endpoint string) {
 	count, err := s.repo.GetCurrentMinuteRequestCount(c)
 	if err != nil {
 		log.Println("failed to get current minute request count:", err)
