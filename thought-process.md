@@ -15,7 +15,7 @@
     - Added Redis as a distributed cache for ensuring uniqueness of ID in every minute window.
     - Using redis to store the count of requests in every minute window.
     - Using a Ticker to regularly fetch the count and push on to kafka.
-    - Using go routines for handling redis interactions. Since redis is single threaded, even if we have multiple requests at the same time with same ID, the second one will get discarded. 
+    - Using go routines for handling redis interactions since traffic upto 10k rps is expected. Since redis is single threaded, even if we have multiple requests at the same time with same ID, the second one will get discarded. 
 
     ![alt text](./images/image.png)
 
