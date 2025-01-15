@@ -23,6 +23,8 @@
     ```shell
     /api/verve/accept?id=43&endpoint=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fverve%2Faccept
     ```
+- Logging Last minute request count
+    - A Ticker based async task that logs the number of request recieved in the last minute.
 
 ## Assumptions and TradeOffs
 
